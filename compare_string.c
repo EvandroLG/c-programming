@@ -2,7 +2,7 @@
 #include <string.h>
 
 int main() {
-    char *name = "Lua\n";
+    char name[4] = "Lua\n";
     char string[40];
 
     printf("Which is my favorite programming language?\n");
