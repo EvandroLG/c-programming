@@ -2,6 +2,12 @@
 #include <ctype.h>
 #include <string.h>
 
+/*
+ * Exercise 6-1. Our version of getwords does not properly
+ * handle underscores, string constants, comments, or preprocessor control lines.
+ * Write a better version.
+*/
+
 #define MAX_WORD 100
 
 struct key {
@@ -21,7 +27,14 @@ struct key keytab[] = {
     "unsigned", 0,
     "void", 0,
     "volatile", 0,
-    "while", 0
+    "while", 0,
+    "for", 0,
+    "enum", 0,
+    "if", 0,
+    "else", 0,
+    "switch", 0,
+    "int", 0,
+    "float", 0,
 };
 
 #define TOTAL_KEYWORDS (sizeof keytab / sizeof keytab[0])
@@ -43,7 +56,7 @@ void ungetch(int c) {
 }
 
 int get_word(char *word, int limit) {
-    int c;
+    int c, t;
 
     char *w = word;
 
@@ -54,6 +67,23 @@ int get_word(char *word, int limit) {
     }
 
     if (!isalpha(c)) {
+        if (c == '#') {
+            for (c = getch(); c != '\n'; c = getch());
+        } else if (c == '/') {
+            if ((c = getch()) == '/') {
+                for (c = getch(); c != '\n'; c = getch());
+            } else if (c == '*') {
+                for (c = getch(), t = getch(); c != '*' && t != '/'; c = getch(), t = getch()) {
+                    ungetch(t);
+                } 
+            }
+        }
+
+        if (c != '\n') {
+            ungetch(c);
+        }
+
+
         *w = '\0';
         return c;
     }
@@ -66,7 +96,7 @@ int get_word(char *word, int limit) {
     }
 
     *w = '\0';
-    return word[0]; 
+    return word[0];
 }
 
 int binary_search(char *word, struct key tab[], int size) {
